@@ -22,8 +22,8 @@ class GridWorld:
         
         # TODO: Set grid rewards for special cells (bomb and gold)
         for bomb_location in self.bomb_locations:
-            self.grid[] = ...
-        self.grid[self.gold_location[0], self.gold_location[1]] = ...
+            self.grid[bomb_location[0], bomb_location[1]] = -500
+        self.grid[self.gold_location[0], self.gold_location[1]] = 500
         
         # Set available actions
         self.actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
@@ -96,7 +96,7 @@ class GridWorld:
         """
         Returns the reward for an input position
         """
-        return self.grid[ new_location[0], new_location[1]]
+        return self.grid[new_location[0], new_location[1]]
 
     def check_state(self):
         """
@@ -115,7 +115,15 @@ class GridWorld:
         # TODO: Implement this function
         # With epsilon chance, move in a random direction
         if np.random.uniform(0,1) < self.rho:
-            action = ...
+            action_int = np.random.randint(4)
+            if action_int == 0:
+                action = 'UP'
+            elif action_int == 1:
+                action = 'DOWN'
+            elif action_int == 1:
+                action = 'LEFT'
+            else:
+                action = 'RIGHT'
         
         # UP
         last_location = self.current_location
@@ -124,25 +132,37 @@ class GridWorld:
             if last_location[0] == 0:
                 reward = self.get_reward(last_location)
             else:
-                self.current_location = ( self.current_location[0] - 1, self.current_location[1])
+                self.current_location = (self.current_location[0] - 1, self.current_location[1])
                 reward = self.get_reward(self.current_location)
         
         # DOWN
         elif action == 'DOWN':
             # If agent is at bottom, stay still, collect reward
-            ...
+            if last_location[0] == self.height - 1:
+                reward = self.get_reward(last_location)
+            else:
+                self.current_location = (self.current_location[0] + 1, self.current_location[1])
+                reward = self.get_reward(self.current_location)
             
         # LEFT
         elif action == 'LEFT':
             # If agent is at the left, stay still, collect reward
-            ...
+            if last_location[1] == 0:
+                reward = self.get_reward(last_location)
+            else:
+                self.current_location = (self.current_location[0], self.current_location[1] - 1)
+                reward = self.get_reward(self.current_location)
 
         # RIGHT
         elif action == 'RIGHT':
             # If agent is at the right, stay still, collect reward
-            ...
+            if last_location[1] == self.width - 1:
+                reward = self.get_reward(last_location)
+            else:
+                self.current_location = (self.current_location[0], self.current_location[1] + 1)
+                reward = self.get_reward(self.current_location)
         
         # check if reached a terminal state
-        done = ...
+        done = (self.current_location == self.gold_location)
         
         return self.current_location, reward, done

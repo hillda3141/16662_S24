@@ -26,10 +26,16 @@ def train_q_agent(environment: GridWorld, agent: QAgent, trials=1000, max_steps_
         cumulative_reward = 0
         step = 0
         while step < max_steps_per_episode:
-            # Train loop for Q agent
-            
+            action = agent.get_action(state, explore=True)
+            next_state, reward, done = environment.step(action)
+            agent.update(state, reward, next_state, action)
+            cumulative_reward = cumulative_reward + reward
+
             if done:
                 break
+            else:
+                state = next_state
+                step = step + 1
                 
         reward_per_episode.append(cumulative_reward)
     return reward_per_episode
@@ -86,7 +92,7 @@ def benchmark_performance(environment: GridWorld, agent, trials=100, max_steps_p
 
 if __name__ == '__main__':
     # Seed random number generator
-    np.random.seed(...) # TODO: set your own random seed
+    np.random.seed(7) # TODO: set your own random seed
     env = GridWorld(rho=ENV_RHO)
     
     # Benchmark random agent

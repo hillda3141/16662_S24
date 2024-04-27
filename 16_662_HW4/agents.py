@@ -9,8 +9,8 @@ class RandomAgent():
         
     # Choose a random action
     def get_action(self, state, explore=True):
-        # TODO: randomly choose an action
-        pass
+        return self.available_actions[np.random.randint(len(self.available_actions))]
+        
 
 class QAgent():
     def __init__(self, environment, alpha=0.1, gamma=0.99, epsilon=0.1):
@@ -20,8 +20,20 @@ class QAgent():
         self.epsilon = epsilon
         
         # TODO: Initialize the Q-table with random values
-        self.q_table = dict() 
-        ...
+        self.q_table = dict()
+        for i in range(self.environment.height):
+            for j in range(self.environment.width):
+                self.q_table[(i,j)] = dict()
+                if (i,j) != self.environment.gold_location:
+                    self.q_table[(i,j)]['UP'] = np.random.uniform(-100,100)
+                    self.q_table[(i,j)]['DOWN'] = np.random.uniform(-100,100)
+                    self.q_table[(i,j)]['LEFT'] = np.random.uniform(-100,100)
+                    self.q_table[(i,j)]['RIGHT'] = np.random.uniform(-100,100)
+                else:
+                    self.q_table[(i,j)]['UP'] = 0
+                    self.q_table[(i,j)]['DOWN'] = 0
+                    self.q_table[(i,j)]['LEFT'] = 0
+                    self.q_table[(i,j)]['RIGHT'] = 0
         
     def get_action(self, state, explore=True):
         """
@@ -31,9 +43,24 @@ class QAgent():
         """
         # TODO: Implement this function
         if np.random.uniform(0,1) < self.epsilon and explore:
-            action = 
+            action_int = np.random.randint(4)
+            if action_int == 0:
+                action = 'UP'
+            elif action_int == 1:
+                action = 'DOWN'
+            elif action_int == 1:
+                action = 'LEFT'
+            else:
+                action = 'RIGHT'
         else:
-            action = 
+            action = 'UP'
+            if self.q_table[state]['DOWN'] > self.q_table[state][action]:
+                min_action = 'DOWN'
+            if self.q_table[state]['LEFT'] > self.q_table[state][action]:
+                min_action = 'LEFT'
+            if self.q_table[state]['RIGHT'] > self.q_table[state][action]:
+                min_action = 'RIGHT'
+
         return action
     
     def update(self, state, reward, next_state, action):
@@ -41,7 +68,7 @@ class QAgent():
         Updates the Q-value tables using Q-learning
         """
         # TODO: Implement this function
-        self.q_table[state][action] = ...
+        self.q_table[state][action] = self.q_table[state][action] + self.alpha * (reward + self.gamma * self.q_table[next_state][self.get_action(state,explore=False)] - self.q_table[state][action])
     
     def visualize_q_values(self, SCALE=100):
         """
